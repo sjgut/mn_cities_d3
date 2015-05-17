@@ -85,8 +85,7 @@
 			text-align: center;             
 			}
             .hilite{
-                z-index: 100;
-                fill: black;
+                display: none;
             }
 			
 		</style>
@@ -139,51 +138,53 @@
 			//mnProjection.rotate([94, 7.5, 0]).parallels([39.5, 55.5]);
 			//mnProjection.center([-100, 0]);
 			var thePaths = d3.geo.path().projection(mnProjection);
-            var circles;
+            
 			d3.select("#ninety").on("click", function(){
-				//d3.selectAll("circle").data([]).exit().transition().duration(1000).attr("r", 0).remove();
-
-					svg.selectAll("circle")
-					.transition()
-					.duration(1000)
+				//transition symbols
+                svg.selectAll("circle")
+                   .transition()
+                   .duration(1000)
                    .attr("r", function(d) {
                         return (Math.sqrt(parseInt(d.pop_90)) * 0.04121)*1.049;
                    })
-                   .style("stroke", "white")
-                   .style("stroke-width", "2px")
-                   .style("fill", "orange")
-                   .style("opacity", 0.65);
-                   d3.selectAll('li').transition().text(function(d){
+                   .style("fill", "orange");
+                   
+                //change text for list items
+                d3.selectAll('li').text(function(d){
                     if(d.pop_90!=0){return d.name;}
                     });
 			});
 			
 			d3.select("#ten").on("click", function(){
-				svg.selectAll("circle")
+				console.log(svg.select("g"));
+                svg.selectAll("circle")
 					.transition()
 					.duration(1000)
-						   .attr("r", function(d) {
-								return (Math.sqrt(parseInt(d.pop_10)) * 0.04121)*1.049;
-						   })
-						   .style("fill", "steelblue")
-						   .style("opacity", 0.65);
-                d3.selectAll('li').transition().text(function(d){
-                            if(d.pop_10!=0){return d.name;}
+                    .attr("r", function(d) {
+                        return (Math.sqrt(parseInt(d.pop_10)) * 0.04121)*1.049;
+                    })
+                    .style("fill", "steelblue")
+                    .style("opacity", 0.65);
+                d3.selectAll('li').text(function(d){
+                        if(d.pop_10!=0){return d.name;}
                     });
-				
 			});
+            
+            //load json
 			d3.json("ne_10m_admin_1_states_provinces_lakes_geojson.json", function(json) {
 						var mn = json.features.filter(function(d) {
-								return d.properties.NAME_1 ==  "Minnesota";
-								});
+                                    return d.properties.NAME_1 ==  "Minnesota";
+								 });
 						mnProjection.scale(1).translate([0,0]);
-						//mnProjection.rotate([0, 1, 0]);
+                        
+                        //path generator
 						var b = thePaths.bounds(mn[0]),
 							s = .95 / Math.max((b[1][0] - b[0][0]) / w, (b[1][1] - b[0][1]) / h),
 							t = [(w - s * (b[1][0] + b[0][0])) / 2, (h - s * (b[1][1] + b[0][1])) / 2];
 						
 						mnProjection.scale(s).translate(t);
 						
+                        //draw and style paths for geographic features
 						svg.selectAll("path")
                            .data(mn)
                            .enter()
@@ -193,51 +194,76 @@
                            .style("opacity", 0.25)
                            .style("stroke", "blue");
                         
-								   
+					//load csv			   
 					d3.csv("MN_Places_Pop_Top_10_comb.csv", function(data){
-					d3.select('#bob').selectAll('li').data(data).enter().append("li").html(function(d){
-                            if(d.pop_10!=0){return d.name;}
-                    });
+                        //initial list of places, 2010 population
+                        d3.select('#bob').selectAll('li').data(data)
+                            .sort(function(a,b){return d3.descending(parseInt(a.pop_10),parseInt(b.pop_10));})
+                            .enter()
+                            .append("li")
+                            .html(function(d){
+                                if(d.pop_10!=0){return d.name;}
+                            });
                         
-					svg.selectAll("circle").data(data)
-					   .enter()
-					   .append("circle")
-					   .attr("cx", function(d) {
-							   return mnProjection([d.lon, d.lat])[0];
-						   })
-						   .attr("cy", function(d) {
-							   return mnProjection([d.lon, d.lat])[1];
-						   })
+                        //draw 2010 symbols
+                        var symbolGroup = svg.append("g");
+                        symbolGroup.selectAll("circle").data(data)
+                           .sort(function(a,b){return d3.descending(parseInt(a.pop_10),parseInt(b.pop_10));})
+                           .enter()
+                           .append("circle")
+                           .attr("cx", function(d) {
+                                   return mnProjection([d.lon, d.lat])[0];
+                               })
+                               .attr("cy", function(d) {
+                                   return mnProjection([d.lon, d.lat])[1];
+                               })
+                            .attr("r", function(d) {
+                                return (Math.sqrt(parseInt(d.pop_10)) * 0.04121)*1.049;
+                            })
+                            .style("stroke", "white")
+                            .style("stroke-width", "2px")
+                            .style("fill", "steelblue")
+                            .style("opacity", 0.65);
+                            
                         
+                        //draw highlight symbols
+                        var highlightGroup = svg.append("g").attr("id", "highlights");
                         
-                        /*much easier to just draw a 'highlight set of svg features and set css class visibility
-                        accordingly
-                        })*/
-						
-                        .attr("r", function(d) {
-                            return (Math.sqrt(parseInt(d.pop_10)) * 0.04121)*1.049;
-                        })
-                        .style("stroke", "white")
-                        .style("stroke-width", "2px")
-                        .style("fill", "steelblue")
-                        .style("opacity", 0.65);
-					
+                        highlightGroup.selectAll("circle").data(data)
+                           .sort(function(a,b){return d3.descending(parseInt(a.pop_10),parseInt(b.pop_10));})
+                           .enter()
+                           .append("circle")
+                           .attr("cx", function(d) {
+                                   return mnProjection([d.lon, d.lat])[0];
+                               })
+                               .attr("cy", function(d) {
+                                   return mnProjection([d.lon, d.lat])[1];
+                               })
+                            .attr("r", function(d) {
+                                return (Math.sqrt(parseInt(d.pop_10)) * 0.04121)*1.049;
+                            })
+                            .attr("class", "hilite")
+                            .style("stroke", "white")
+                            .style("stroke-width", "2px")
+                            .style("fill", "red")
+                            .style("opacity", 0.8);
                     });
                 //use setTimeout to ensure that transition occurs before setting event handlers below
 				setTimeout(function(){
                     d3.selectAll("li").on("mouseover", function(){
+                        //highlight text element
                         var that = d3.select(this);
 						that.style("background-color", "green").style("color", "white").style("cursor", "pointer");
                        
                         //get list item's text value
 						var c  = that.text();
 						//go through circles and match li text with circle symbol
-						var bob = svg.selectAll("circle");
-                         
+						var g = svg.selectAll("#highlights");
+                        var bob = g.selectAll("circle");
 						bob.filter(function(d, i){
 								var symbolCity = d.name;
-								if (symbolCity == c){
-								d3.select(bob[0][i]).style("fill", "red").style("opacity", 0.8).moveToFront();
+                                if (symbolCity == c){
+								d3.select(bob[0][i]).classed("hilite", false);
 								 }
 							});
 						});
@@ -245,45 +271,16 @@
                     d3.selectAll("li").on("mouseout", function(){
                         var that = d3.select(this);
 						that.style("background-color", "white").style("color", "black").style("cursor", "auto");
-						var ray = svg.selectAll("circle")
+						var g = svg.selectAll("#highlights");
+                        var ray = g.selectAll("circle")
                         var c = that.text();
 						ray.filter(function(d, i){
 								var symbolCity = d.name;
-                                console.log(symbolCity);
 								if (symbolCity == c){
-                                    d3.select(ray[0][i]).style("fill", "blue");
+                                    d3.select(ray[0][i]).classed("hilite", true);
 								}
                         });
-                        /*below works, but it is much easier to just draw a 'highlight set of svg features and set css class visibility
-                        accordingly
-                        })*/
-                        var z = ray.data().sort(function(a,b){return d3.descending(parseInt(a.pop_10),parseInt(b.pop_10));})
-                            ;
-                        ray.remove();
-                        svg.selectAll("circle").data(z)
-					   .enter()
-					   .append("circle")
-					   .attr("cx", function(z) {
-							   return mnProjection([z.lon, z.lat])[0];
-						   })
-						   .attr("cy", function(z) {
-							   return mnProjection([z.lon, z.lat])[1];
-						   })				
-                        .attr("r", function(z) {
-                            return (Math.sqrt(parseInt(z.pop_10)) * 0.04121)*1.049;
-                        })
-                        .style("stroke", "white")
-                        .style("stroke-width", "2px")
-                        .style("fill", "steelblue")
-                        .style("opacity", 0.65);
-                        //ray.append(function(){console.log("a");});
-                        //get selection of all circles
-                        //sort by radius, and draw largest to smallest, so that smallest circle is on top
-                        /*.on("mouseout", function(d){
-                            var that = d3.select(this);
-                            that.moveToFront();
-                        })*/
-						
+                       
                     });
                 }, 1000);
                
