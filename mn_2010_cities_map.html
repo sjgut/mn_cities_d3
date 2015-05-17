@@ -7,17 +7,15 @@
 		<style type="text/css">
 			
 			#container {
-				border: thin solid;
+                border: thin solid;
 				position: relative;
 				width: 1200px;
 			}
 			#map {
-				border: thin solid;
 				position: relative;
 				width: 875px;
 			}
 			#text {
-				border: thin solid;
 				bottom: 0;
 				height: 100%;
 				position: absolute;
@@ -26,10 +24,14 @@
 			}
 			#title {
 				bottom: 0;
+                right: 0;
 				position: absolute;
-				text-align: left;
+				text-align: center;
 				transform: scale(1, 1.1);
-                font-size: 3em;
+                font-size: 2.8em;
+                font-weight: 700;
+                margin: 15px;
+                width: 100%;
 				-webkit-transform:scale(1,1.1); /* Safari and Chrome */
 				-moz-transform:scale(1,1.1); /* Firefox */
 				-ms-transform:scale(1,1.1); /* IE 9+ */
@@ -42,7 +44,7 @@
 				position: relative;
 				float: left;
 				width: 200px;
-				border: thin solid;
+				margin: 10px;
 				text-align: center;
 				background-color: orange;
 				opacity: .75;
@@ -55,7 +57,7 @@
 				position: relative;
 				float: right;
 				width: 200px;
-				border: thin solid;
+				margin: 10px;
 				text-align: center;
 				background-color: steelblue;
 				opacity: .75;
@@ -65,7 +67,6 @@
 				}
 				
 			#list{
-				border: thin solid;
 				position: relative;
 				width: 500px;
 				clear: both;
@@ -73,17 +74,18 @@
 			}
 			
 			ul{
-				border: thin solid;
 				position: absolute;
 				left: 150px;
 				width: 200px;
 				padding: 0;
                 font-size: 2em;
-				}
-			li{
-			list-style-type: none;
-			text-align: center;             
 			}
+            
+			li{
+                list-style-type: none;
+                text-align: center;             
+			}
+            
             .hilite{
                 display: none;
             }
@@ -152,7 +154,7 @@
                    .style("fill", "orange");
                    
                 //change text for list items
-                d3.selectAll('li').text(function(d){
+                d3.selectAll('li').sort(function(a,b){return d3.descending(parseInt(a.pop_90),parseInt(b.pop_90));}).text(function(d){
                     if(d.pop_90!=0){return d.name;}
                     });
 			});
@@ -167,7 +169,8 @@
                     })
                     .style("fill", "steelblue")
                     .style("opacity", 0.65);
-                d3.selectAll('li').text(function(d){
+                    
+                d3.selectAll('li').sort(function(a,b){return d3.descending(parseInt(a.pop_10),parseInt(b.pop_10));}).text(function(d){
                         if(d.pop_10!=0){return d.name;}
                     });
 			});
@@ -256,7 +259,6 @@
                          
                         //draw 1990 highlight symbols
                         var highlightGroup1990 = svg.append("g").attr("id", "highlights1990");
-                        console.log(highlightGroup1990);
                         highlightGroup1990.selectAll("circle").data(data)
                            .sort(function(a,b) {
                                 if (a.pop_90 != 0){
@@ -303,7 +305,29 @@
 								 }
 							});
 						});
-			
+                        
+                    d3.selectAll("li").on("click", function(){
+                        //highlight text element
+                        var that = d3.select(this);
+						that.style("background-color", "green").style("color", "white").style("cursor", "pointer");
+                       
+                        //get list item's text value
+						var c  = that.text();
+						//go through circles and match li text with circle symbol
+						if (year == "2010"){
+                            var g = svg.selectAll("#highlights2010");
+                        }else if(year == "1990"){
+                            var g = svg.selectAll("#highlights1990");
+                        }
+                        var bob = g.selectAll("circle");
+						bob.filter(function(d, i){
+								var symbolCity = d.name;
+                                if (symbolCity == c){
+								d3.select(bob[0][i]).classed("hilite", false);
+								 }
+							});
+						});
+                        
                     d3.selectAll("li").on("mouseout", function(){
                         var that = d3.select(this);
 						that.style("background-color", "white").style("color", "black").style("cursor", "auto");
