@@ -132,6 +132,7 @@
 						.append("svg")
 						.attr("width", w)
 						.attr("height", h);
+            var year = "2010";
 			//define projection
 			var mnProjection = d3.geo.albers().rotate([94, 0]).center([0, 46]).parallels([39.5, 55.5]);
 			//var mnProjection = d3.geo.transverseMercator().rotate([93, -45]).center([0, 0]);
@@ -140,8 +141,9 @@
 			var thePaths = d3.geo.path().projection(mnProjection);
             
 			d3.select("#ninety").on("click", function(){
-				//transition symbols
-                svg.selectAll("circle")
+				year = "1990";
+                //transition symbols
+                svg.select("#symbols").selectAll("circle")
                    .transition()
                    .duration(1000)
                    .attr("r", function(d) {
@@ -156,8 +158,8 @@
 			});
 			
 			d3.select("#ten").on("click", function(){
-				console.log(svg.select("g"));
-                svg.selectAll("circle")
+				year = "2010";
+                svg.select("#symbols").selectAll("circle")
 					.transition()
 					.duration(1000)
                     .attr("r", function(d) {
@@ -206,7 +208,7 @@
                             });
                         
                         //draw 2010 symbols
-                        var symbolGroup = svg.append("g");
+                        var symbolGroup = svg.append("g").attr("id", "symbols");
                         symbolGroup.selectAll("circle").data(data)
                            .sort(function(a,b){return d3.descending(parseInt(a.pop_10),parseInt(b.pop_10));})
                            .enter()
@@ -226,11 +228,15 @@
                             .style("opacity", 0.65);
                             
                         
-                        //draw highlight symbols
-                        var highlightGroup = svg.append("g").attr("id", "highlights");
+                        //draw 2010 highlight symbols
+                        var highlightGroup2010 = svg.append("g").attr("id", "highlights2010");
                         
-                        highlightGroup.selectAll("circle").data(data)
-                           .sort(function(a,b){return d3.descending(parseInt(a.pop_10),parseInt(b.pop_10));})
+                        highlightGroup2010.selectAll("circle").data(data)
+                           .sort(function(a,b){
+                                if (a.pop_10 != 0){
+                                    return d3.descending(parseInt(a.pop_10),parseInt(b.pop_10));
+                                }
+                           })
                            .enter()
                            .append("circle")
                            .attr("cx", function(d) {
@@ -241,6 +247,32 @@
                                })
                             .attr("r", function(d) {
                                 return (Math.sqrt(parseInt(d.pop_10)) * 0.04121)*1.049;
+                            })
+                            .attr("class", "hilite")
+                            .style("stroke", "white")
+                            .style("stroke-width", "2px")
+                            .style("fill", "red")
+                            .style("opacity", 0.8);
+                         
+                        //draw 1990 highlight symbols
+                        var highlightGroup1990 = svg.append("g").attr("id", "highlights1990");
+                        console.log(highlightGroup1990);
+                        highlightGroup1990.selectAll("circle").data(data)
+                           .sort(function(a,b) {
+                                if (a.pop_90 != 0){
+                                    return d3.descending(parseInt(a.pop_90),parseInt(b.pop_90));
+                                }
+                           })
+                           .enter()
+                           .append("circle")
+                           .attr("cx", function(d) {
+                                   return mnProjection([d.lon, d.lat])[0];
+                               })
+                               .attr("cy", function(d) {
+                                   return mnProjection([d.lon, d.lat])[1];
+                               })
+                            .attr("r", function(d) {
+                                return (Math.sqrt(parseInt(d.pop_90)) * 0.04121)*1.049;
                             })
                             .attr("class", "hilite")
                             .style("stroke", "white")
@@ -258,7 +290,11 @@
                         //get list item's text value
 						var c  = that.text();
 						//go through circles and match li text with circle symbol
-						var g = svg.selectAll("#highlights");
+						if (year == "2010"){
+                            var g = svg.selectAll("#highlights2010");
+                        }else if(year == "1990"){
+                            var g = svg.selectAll("#highlights1990");
+                        }
                         var bob = g.selectAll("circle");
 						bob.filter(function(d, i){
 								var symbolCity = d.name;
@@ -271,7 +307,11 @@
                     d3.selectAll("li").on("mouseout", function(){
                         var that = d3.select(this);
 						that.style("background-color", "white").style("color", "black").style("cursor", "auto");
-						var g = svg.selectAll("#highlights");
+						if (year == "2010"){
+                            var g = svg.selectAll("#highlights2010");
+                        }else if(year == "1990"){
+                            var g = svg.selectAll("#highlights1990");
+                        }
                         var ray = g.selectAll("circle")
                         var c = that.text();
 						ray.filter(function(d, i){
