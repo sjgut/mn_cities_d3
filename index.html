@@ -5,87 +5,83 @@
 		<title>D3 Demo: GeoJSON</title>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
 		<style type="text/css">
-			
+       
 			#container {
                 border: thin solid;
-				position: relative;
-				width: 1200px;
-			}
-			#map {
-				position: relative;
-				width: 875px;
-			}
-			#text {
-				bottom: 0;
-				height: 100%;
-				position: absolute;
-				right: 0;
-				width: 500px;
-			}
-			#title {
-				bottom: 0;
+                position: relative;
+                width: 900px;
+            }
+
+            #map {
+                position: relative;
+                width: 460px;
+            }
+
+            #text {
+                bottom: 0;
+                height: 100%;
+                position: absolute;
                 right: 0;
-				position: absolute;
-				text-align: center;
-				transform: scale(1, 1.1);
-                font-size: 2.8em;
-                font-weight: 700;
-                margin: 15px;
-                width: 100%;
-				-webkit-transform:scale(1,1.1); /* Safari and Chrome */
+                width: 440px;
+            }
+
+            .button{
+                cursor: pointer;
+                font-size: 2em;
+                font-weight: 900;
+                margin: 10px;
+                opacity: 0.75;
+                position: relative;
+                text-align: center;
+                width: 200px;
+            }
+            
+            #ten {
+                background-color: steelblue;
+                float: right;
+            }
+
+            #ninety {
+                background-color: orange;
+                float: left;
+            }
+
+            #list {
+                clear: both;
+                position: relative;
+                text-align: center;
+                width: 440px;
+            }
+
+            ul {
+                font-size: 1.9em;
+                margin: auto;
+                padding-top: 30px;
+                padding-left: 0;
+                width: 200px;
+            }
+
+            li {
+                list-style-type: none;
+                text-align: center;
+            }
+
+            #title {
+                bottom: 0;
+                font-size: 2.5em;
+                position: absolute;
+                text-align: center;
+                padding: 10px;
+                -webkit-transform:scale(1,1.1); /* Safari and Chrome */
 				-moz-transform:scale(1,1.1); /* Firefox */
 				-ms-transform:scale(1,1.1); /* IE 9+ */
 				-o-transform:scale(1,1.1); /* Opera */;
-			}
+            }
+			
 			body {
 				font-family: helvetica;
 			}
-			#ninety{
-				position: relative;
-				float: left;
-				width: 200px;
-				margin: 10px;
-				text-align: center;
-				background-color: orange;
-				opacity: .75;
-                cursor: pointer;
-                font-size: 2em;
-                font-weight: 900;
-			}
 			
-			#ten{
-				position: relative;
-				float: right;
-				width: 200px;
-				margin: 10px;
-				text-align: center;
-				background-color: steelblue;
-				opacity: .75;
-                cursor: pointer;
-                font-size: 2em;
-                font-weight: 900;
-				}
-				
-			#list{
-				position: relative;
-				width: 500px;
-				clear: both;
-				text-align: center;
-			}
-			
-			ul{
-				position: absolute;
-				left: 150px;
-				width: 200px;
-				padding: 0;
-                font-size: 2em;
-			}
-            
-			li{
-                list-style-type: none;
-                text-align: center;             
-			}
-            
             .hilite{
                 display: none;
             }
@@ -96,9 +92,9 @@
 	<div id="container">
 	 <div id="map"></div>
 	 <div id="text">
-		 <div id="ten">2010</div><div id="ninety">1990</div>
+		 <div class="button" id="ten">2010</div><div class="button" id="ninety">1990</div>
 		 <div id="list">
-		 <ul id="bob">
+		 <ul id="names">
 		 </ul>
 		 </div>
 		 <div id="title">Minnesota: Ten Largest Cities by Population</div>
@@ -128,8 +124,8 @@
                     });
                   })*/
 			//Width and height
-			var w = 875;
-			var h = 700;
+			var w = 500;
+			var h = 600;
 			var svg = d3.select("#map")
 						.append("svg")
 						.attr("width", w)
@@ -176,7 +172,7 @@
 			});
             
             //load json
-			d3.json("data/ne_10m_admin_1_mn.geojson", function(json) {
+			d3.json("ne_10m_admin_1_states_provinces_lakes_geojson.json", function(json) {
 						var mn = json.features.filter(function(d) {
                                     return d.properties.NAME_1 ==  "Minnesota";
 								 });
@@ -200,9 +196,9 @@
                            .style("stroke", "blue");
                         
 					//load csv			   
-					d3.csv("data/MN_Places_Pop_Top_10_comb.csv", function(data){
+					d3.csv("MN_Places_Pop_Top_10_comb.csv", function(data){
                         //initial list of places, 2010 population
-                        d3.select('#bob').selectAll('li').data(data)
+                        d3.select('#names').selectAll('li').data(data)
                             .sort(function(a,b){return d3.descending(parseInt(a.pop_10),parseInt(b.pop_10));})
                             .enter()
                             .append("li")
