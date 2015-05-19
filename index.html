@@ -172,7 +172,7 @@
 			});
             
             //load json
-			d3.json("ne_10m_admin_1_states_provinces_lakes_geojson.json", function(json) {
+			d3.json("data/ne_10m_admin_1_mn.geojson", function(json) {
 						var mn = json.features.filter(function(d) {
                                     return d.properties.NAME_1 ==  "Minnesota";
 								 });
