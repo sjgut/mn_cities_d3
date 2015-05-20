@@ -6,10 +6,11 @@
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.js"></script>
 		<style type="text/css">
        
-			#container {
-                border: thin solid;
-                position: relative;
+	body {
+                font-family: helvetica;
+                position: absolute;
                 width: 900px;
+                height: 600px;
             }
 
             #map {
@@ -68,20 +69,17 @@
 
             #title {
                 bottom: 0;
-                font-size: 2.5em;
-                position: absolute;
+                font-size: 2.3em;
+                position: relative;
                 text-align: center;
                 padding: 10px;
+                font-weight: 700;
                 -webkit-transform:scale(1,1.1); /* Safari and Chrome */
-				-moz-transform:scale(1,1.1); /* Firefox */
-				-ms-transform:scale(1,1.1); /* IE 9+ */
-				-o-transform:scale(1,1.1); /* Opera */;
+		-moz-transform:scale(1,1.1); /* Firefox */
+		-ms-transform:scale(1,1.1); /* IE 9+ */
+		-o-transform:scale(1,1.1); /* Opera */;
             }
-			
-			body {
-				font-family: helvetica;
-			}
-			
+	
             .hilite{
                 display: none;
             }
@@ -89,7 +87,6 @@
 		</style>
 	</head>
 	<body>
-	<div id="container">
 	 <div id="map"></div>
 	 <div id="text">
 		 <div class="button" id="ten">2010</div><div class="button" id="ninety">1990</div>
@@ -172,7 +169,7 @@
 			});
             
             //load json
-			d3.json("data/ne_10m_admin_1_mn.geojson", function(json) {
+			d3.json("ne_10m_admin_1_mn.geojson", function(json) {
 						var mn = json.features.filter(function(d) {
                                     return d.properties.NAME_1 ==  "Minnesota";
 								 });
@@ -196,7 +193,7 @@
                            .style("stroke", "blue");
                         
 					//load csv			   
-					d3.csv("data/MN_Places_Pop_Top_10_comb.csv", function(data){
+					d3.csv("MN_Places_Pop_Top_10_comb.csv", function(data){
                         //initial list of places, 2010 population
                         d3.select('#names').selectAll('li').data(data)
                             .sort(function(a,b){return d3.descending(parseInt(a.pop_10),parseInt(b.pop_10));})
@@ -343,8 +340,8 @@
                        
                     });
                 }, 1000);
-               
-			});
+	});
+	d3.select(self.frameElement).style("height", "600px");
 		</script>
 	</body>
 </html>
